@@ -12,6 +12,7 @@ struct QuackStartStopFunctionData : public TableFunctionData {
 	bool finished = false;
 	QuackUri listen_uri;
 	string token;
+	bool foreground = false;
 };
 
 static unique_ptr<FunctionData> QuackServeBind(ClientContext &context, TableFunctionBindInput &input,
@@ -61,6 +62,9 @@ static unique_ptr<FunctionData> QuackServeBind(ClientContext &context, TableFunc
 	// Validate at bind-time: a length error here fails before the listener
 	// thread is spawned, instead of leaving a half-built server behind.
 	QuackServer::ValidateToken(bind_data->token);
+	if (input.named_parameters.find("foreground") != input.named_parameters.end()) {
+		bind_data->foreground = input.named_parameters["foreground"].GetValue<bool>();
+	}
 
 	return std::move(bind_data);
 }
@@ -71,7 +75,8 @@ static void QuackServe(ClientContext &context, TableFunctionInput &data_p, DataC
 		return;
 	}
 
-	QuackStorageExtensionInfo::GetState(*context.db).CreateServer(context, bind_data.listen_uri, bind_data.token);
+	QuackStorageExtensionInfo::GetState(*context.db).CreateServer(context, bind_data.listen_uri, bind_data.token,
+	                                                              bind_data.foreground);
 	output.SetValue(0, 0, bind_data.listen_uri.Uri());
 	output.SetValue(1, 0, bind_data.listen_uri.Http());
 	output.SetValue(2, 0, bind_data.token);
@@ -86,6 +91,7 @@ TableFunctionSet QuackServeFunction::GetFunction() {
 	fun.named_parameters["disable_ssl"] = LogicalType::BOOLEAN;
 	fun.named_parameters["allow_other_hostname"] = LogicalType::BOOLEAN;
 	fun.named_parameters["token"] = LogicalType::VARCHAR;
+	fun.named_parameters["foreground"] = LogicalType::BOOLEAN;
 	set.AddFunction(fun);
 	fun.arguments.clear();
 	set.AddFunction(fun);

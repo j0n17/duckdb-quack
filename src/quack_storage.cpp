@@ -19,7 +19,7 @@ QuackStorageExtensionInfo &QuackStorageExtensionInfo::GetState(const DatabaseIns
 }
 
 QuackServer &QuackStorageExtensionInfo::CreateServer(ClientContext &context, const QuackUri &listen_uri,
-                                                     const string &token) {
+                                                     const string &token, bool foreground) {
 	auto key = listen_uri.CanonicalUri();
 	std::lock_guard<std::mutex> lock(servers_mutex);
 	auto it = servers.find(key);
@@ -27,7 +27,7 @@ QuackServer &QuackStorageExtensionInfo::CreateServer(ClientContext &context, con
 		throw InvalidInputException("Server already exists for %s", key);
 	}
 	unique_ptr<QuackServer> server;
-	server = make_uniq<HttpQuackServer>(context, listen_uri, token);
+	server = make_uniq<HttpQuackServer>(context, listen_uri, token, foreground);
 	servers.emplace(key, std::move(server));
 	return *servers[key];
 }
