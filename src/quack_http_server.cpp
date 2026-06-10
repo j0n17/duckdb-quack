@@ -52,8 +52,10 @@ void HttpQuackServer::ListenThread(HttpQuackServer *server, const string &listen
 	}
 }
 
-HttpQuackServer::HttpQuackServer(ClientContext &context_p, const QuackUri &uri_p, const string &token_p)
+HttpQuackServer::HttpQuackServer(ClientContext &context_p, const QuackUri &uri_p, const string &token_p, bool foreground)
     : QuackServer(context_p, uri_p, token_p) {
+	// TODO: Implement foreground execution mode semantics.
+	(void)foreground;
 	server = make_uniq<duckdb_httplib::Server>();
 
 	// Each keep-alive connection holds a server thread for its lifetime.

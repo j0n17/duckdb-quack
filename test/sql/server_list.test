@@ -16,7 +16,7 @@ SELECT count(*) FROM quack_server_list();
 
 # one server
 statement ok
-FROM quack_serve('quack:127.0.0.1:9494', token='abcd');
+FROM quack_serve('quack:127.0.0.1:9494', token='abcd', foreground=true);
 
 query I
 SELECT count(*) FROM quack_server_list();

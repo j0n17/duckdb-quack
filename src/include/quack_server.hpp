@@ -116,7 +116,7 @@ private:
 
 class HttpQuackServer : public QuackServer {
 public:
-	HttpQuackServer(ClientContext &context_p, const QuackUri &uri_p, const string &token_p);
+	HttpQuackServer(ClientContext &context_p, const QuackUri &uri_p, const string &token_p, bool foreground);
 
 	void StopAccepting() override;
 	void Close() override;
